@@ -28,8 +28,9 @@ def load_data(filepath):
         sys.exit(1)
 
 
-def find_best_separating_features(df):
-    """Identifie les variables ayant une bonne séparation entre les maisons."""
+def find_best_separating_features(df, output_file="data/best_features.txt"):
+    """Identifie les variables ayant une bonne séparation entre les maisons
+    et les sauvegarde."""
     best_features = []
     for col in df.columns[1:]:
         grouped = df.groupby("Hogwarts House")[col].mean()
@@ -41,9 +42,21 @@ def find_best_separating_features(df):
 
     best_features.sort(key=lambda x: x[1], reverse=True)
 
+    # Sélection des 5 meilleures variables
+    top_features = [feature for feature, _ in best_features[:5]]
+
+    # Affichage dans le terminal
     print("\n📊 **Variables avec la meilleure séparation entre les maisons :**")
-    for feature, score in best_features[:5]:  # Afficher les 5 meilleures
+    for feature, score in best_features[:5]:
         print(f"✅ {feature} (Ratio de séparation : {score:.3f})")
+
+    # Sauvegarde des meilleures caractéristiques dans un fichier
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, "w") as f:
+        for feature in top_features:
+            f.write(f"{feature}\n")
+
+    print(f"📂 Meilleures caractéristiques sauvegardées dans : {output_file}")
 
 
 def find_best_correlated_features(df):
@@ -86,8 +99,6 @@ if __name__ == "__main__":
     file_path = sys.argv[1]
     df = load_data(file_path)
 
-    find_best_separating_features(df)
-
+    find_best_separating_features(df)  # Ajout de la sauvegarde
     find_best_correlated_features(df)
-
     plot_pairplot(df)

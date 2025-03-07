@@ -43,6 +43,10 @@ train:
 predict:
 	@docker run --rm -v $(PWD):$(WORKDIR) -v $(PWD)/data:$(DATA_DIR) $(IMAGE_NAME) python3 $(PREDICT_SCRIPT) $(TEST_DATA)
 
+evaluate:
+	@docker run --rm -v $(PWD):$(WORKDIR) -v $(PWD)/data:$(DATA_DIR) $(IMAGE_NAME) python3 app/logreg_evaluate.py $(TRAIN_DATA)
+
+
 # Exécuter les tests unitaires
 test:
 	@echo "🧪 Exécution des tests..."
