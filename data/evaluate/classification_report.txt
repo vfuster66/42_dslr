@@ -1,5 +1,0 @@
-Classe          Precision    Recall    F1-Score
-Gryffindor           0.98      0.97        0.98
-Hufflepuff           0.98      0.99        0.98
-Ravenclaw            0.98      0.98        0.98
-Slytherin            0.99      0.97        0.98
