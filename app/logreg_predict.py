@@ -10,7 +10,7 @@ def load_best_features(filepath="data/best_features.txt"):
     try:
         with open(filepath, "r") as f:
             features = [line.strip() for line in f.readlines()]
-        print(f"🔍 Caractéristiques sélectionnées : {features}")
+        print(f"\n🔍 Caractéristiques sélectionnées : {features}")
         return features
     except Exception as e:
         print(f"❌ Erreur lors du chargement des meilleures "
@@ -25,12 +25,6 @@ def load_data(filepath):
     """
     try:
         df = pd.read_csv(filepath)
-        print(f"📊 Predict -> Fichier chargé avec {len(df)} lignes "
-              f"et {len(df.columns)} colonnes.")
-        print(f"📊 Predict -> Colonnes chargées : {df.columns.tolist()}")
-        missing_values = df.isna().sum()
-        print(f"📊 Nombre de valeurs manquantes par colonne :\n"
-              f"{missing_values}")
 
         if "Hogwarts House" not in df.columns:
             raise ValueError(
@@ -69,7 +63,6 @@ if __name__ == "__main__":
 
     file_path = sys.argv[1]
     df, selected_features = load_data(file_path)
-    print(f"📊 Nombre de lignes après remplissage des NaN : {len(df)}")
 
     try:
         model_data = np.load("data/logreg_model.npy", allow_pickle=True).item()
@@ -77,7 +70,7 @@ if __name__ == "__main__":
         labels = model_data["labels"]
         mean_train = model_data["mean"]
         std_train = model_data["std"]
-        print(f"📜 Labels du modèle : {labels}")
+
     except Exception as e:
         print(f"❌ Erreur lors du chargement du modèle : {e}")
         sys.exit(1)
@@ -98,4 +91,4 @@ if __name__ == "__main__":
 
     output_path = "data/houses.csv"
     results.to_csv(output_path, index=False)
-    print(f"✅ Prédictions sauvegardées dans {output_path}")
+    print(f"\n✅ Prédictions sauvegardées dans {output_path}")

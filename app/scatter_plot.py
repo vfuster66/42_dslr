@@ -84,7 +84,7 @@ def plot_scatter(df, feature1, feature2, output_path):
     plt.savefig(output_path)
     plt.close()
 
-    print(f"📊 Scatter plot sauvegardé : {output_path}")
+    print(f"\n📊 Scatter plot sauvegardé : {output_path}")
 
 
 def plot_top_correlations(df, output_dir="data/scatter_plots", top_n=3):

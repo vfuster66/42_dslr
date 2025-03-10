@@ -10,7 +10,6 @@ def load_best_features(filepath="data/best_features.txt"):
     try:
         with open(filepath, "r") as f:
             features = [line.strip() for line in f.readlines()]
-        print(f"🔍 Caractéristiques sélectionnées : {features}")
         return features
     except Exception as e:
         print(f"❌ Erreur chargement best features : {e}")
@@ -101,7 +100,7 @@ def plot_roc(fpr, tpr, auc_value, label_name, output_path, optimal_point=None):
     plt.savefig(output_path)
     plt.close()
 
-    print(f"✅ ROC sauvegardé : {output_path}")
+    print(f"\n✅ ROC sauvegardé : {output_path}")
 
 
 def plot_super_roc(roc_data, output_path, dataset_name="Train"):
@@ -119,7 +118,7 @@ def plot_super_roc(roc_data, output_path, dataset_name="Train"):
     plt.savefig(output_path)
     plt.close()
 
-    print(f"✅ Super ROC sauvegardé : {output_path}")
+    print(f"\n✅ Super ROC sauvegardé : {output_path}")
 
 
 def export_roc_data(roc_data, output_csv):
@@ -133,7 +132,7 @@ def export_roc_data(roc_data, output_csv):
 
     df_roc = pd.DataFrame(rows, columns=["Classe", "FPR", "TPR", "AUC"])
     df_roc.to_csv(output_csv, index=False)
-    print(f"✅ Données ROC sauvegardées dans {output_csv}")
+    print(f"\n✅ Données ROC sauvegardées dans {output_csv}")
 
 
 def process_dataset(
@@ -164,7 +163,7 @@ def process_dataset(
             fpr, tpr, thresholds
         )
 
-        print(f"➡️  {label}: Seuil optimal = {opt_threshold:.4f}, "
+        print(f"\n➡️  {label}: Seuil optimal = {opt_threshold:.4f}, "
               f"AUC = {auc_value:.4f}")
 
         plot_roc(
@@ -213,7 +212,6 @@ if __name__ == "__main__":
         labels = model_data["labels"]
         mean_train = model_data["mean"]
         std_train = model_data["std"]
-        print(f"\n📜 Labels du modèle : {labels}")
     except Exception as e:
         print(f"❌ Erreur chargement modèle : {e}")
         sys.exit(1)
@@ -221,7 +219,7 @@ if __name__ == "__main__":
     selected_features = load_best_features()
     df_train = load_data(train_dataset_path, selected_features)
 
-    print("⚙️  Génération des courbes ROC sur le dataset d'entraînement...")
+    print("\n⚙️  Génération des courbes ROC sur le dataset d'entraînement...")
     process_dataset(
         df_train,
         selected_features,

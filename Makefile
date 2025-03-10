@@ -52,15 +52,10 @@ pairplot:
 	@echo "🔗 Génération du pair plot..."
 	@docker run --rm -v $(PWD):$(WORKDIR) -v $(PWD)/data:$(DATA_DIR) $(IMAGE_NAME) python3 $(PAIRPLOT_SCRIPT) $(TRAIN_DATA)
 
-# Entraînement du modèle (batch)
 train:
-	@echo "🏋️  Entraînement du modèle (batch gradient descent)..."
-	@docker run --rm -v $(PWD):$(WORKDIR) -v $(PWD)/data:$(DATA_DIR) $(IMAGE_NAME) python3 $(TRAIN_SCRIPT) $(TRAIN_DATA)
-
-# Entraînement du modèle avec Mini-Batch Gradient Descent
-train-mbgd:
-	@echo "🏋️  Entraînement du modèle (mini-batch gradient descent - batch_size=32)..."
-	@docker run --rm -v $(PWD):$(WORKDIR) -v $(PWD)/data:$(DATA_DIR) $(IMAGE_NAME) python3 $(TRAIN_SCRIPT) $(TRAIN_DATA) 32
+	@echo "🏋️  Lancement de l'entraînement interactif\n"
+	@docker run --rm -it -v $(PWD):$(WORKDIR) -v $(PWD)/data:$(DATA_DIR) $(IMAGE_NAME) \
+	python3 $(TRAIN_SCRIPT)
 
 predict:
 	@echo "🔮 Prédictions sur le dataset de test..."

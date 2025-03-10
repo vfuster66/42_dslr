@@ -9,22 +9,16 @@ def load_best_features(filepath="data/best_features.txt"):
     try:
         with open(filepath, "r") as f:
             features = [line.strip() for line in f.readlines()]
-        print(f"🔍 Caractéristiques sélectionnées : {features}")
         return features
     except Exception as e:
-        print(
-            f"❌ Erreur lors du chargement des meilleures caractéristiques : "
-            f"{e}"
-            )
+        print(f"❌ Erreur lors du chargement des meilleures "
+              f"caractéristiques : {e}")
         sys.exit(1)
 
 
 def load_data(filepath):
     try:
         df = pd.read_csv(filepath)
-        print(f"📊 Train -> Fichier chargé avec {len(df)} lignes et "
-              f"{len(df.columns)} colonnes.")
-        print(f"📊 Train -> Colonnes chargées : {df.columns.tolist()}")
 
         if "Hogwarts House" not in df.columns:
             raise ValueError(
@@ -89,7 +83,6 @@ def gradient_descent(X, y, alpha=0.01, lambda_=0.1, iterations=7000):
 
 def mini_batch_gradient_descent(X, y, alpha=0.01, lambda_=0.1,
                                 iterations=7000, batch_size=32):
-    """Effectue la descente de gradient en mini-batch."""
     m, n = X.shape
     theta = np.zeros(n)
     cost_history = []
@@ -119,25 +112,59 @@ def mini_batch_gradient_descent(X, y, alpha=0.01, lambda_=0.1,
     return theta, cost_history
 
 
-def train_one_vs_all(X, y, num_labels, alpha=0.01, lambda_=0.1,
-                     iterations=7000, batch_size=None):
-    """Entraîne un modèle de régression logistique One-vs-All."""
+def stochastic_gradient_descent(X, y, alpha=0.05, lambda_=0.1,
+                                iterations=3000):
+    m, n = X.shape
+    theta = np.zeros(n)
+    cost_history = []
+
+    for it in range(iterations):
+        indices = np.arange(m)
+        np.random.shuffle(indices)
+
+        for i in indices:
+            xi = X[i, :].reshape(1, -1)
+            yi = y[i]
+
+            h = sigmoid(xi @ theta)
+            gradient = (xi.T * (h - yi)).flatten()
+            gradient[1:] += (lambda_ / m) * theta[1:]
+
+            theta -= alpha * gradient
+
+        if it % 100 == 0:
+            cost = cost_function(theta, X, y, lambda_)
+            cost_history.append(cost)
+            print(f"📉 SGD Itération {it}/{iterations} - Coût : {cost:.4f}")
+
+    return theta, cost_history
+
+
+def train_one_vs_all(X, y, num_labels, method="batch", alpha=0.01,
+                     lambda_=0.1, iterations=7000, batch_size=32):
     m, n = X.shape
     all_theta = np.zeros((num_labels, n))
 
+    print(f"\n🚀 Entraînement avec la méthode : {method.upper()}")
     for i in range(num_labels):
-        print(f"\n🚀 Entraînement du modèle pour la maison {i}...")
+        print(f"\n🏠 Entraînement du modèle pour la maison {i}...")
 
         y_i = (y == i).astype(int)
 
-        if batch_size:
-            all_theta[i], _ = mini_batch_gradient_descent(
-                X, y_i, alpha, lambda_, iterations, batch_size
-            )
-        else:
+        if method == "batch":
             all_theta[i], _ = gradient_descent(
                 X, y_i, alpha, lambda_, iterations
             )
+        elif method == "mini-batch":
+            all_theta[i], _ = mini_batch_gradient_descent(
+                X, y_i, alpha, lambda_, iterations, batch_size
+            )
+        elif method == "sgd":
+            all_theta[i], _ = stochastic_gradient_descent(
+                X, y_i, alpha, lambda_, iterations
+            )
+        else:
+            raise ValueError("Méthode d'entraînement non reconnue.")
 
     return all_theta
 
@@ -157,33 +184,72 @@ def save_model(theta, label_dict, mean_train, std_train,
 def evaluate_model(X, y, theta):
     predictions = np.argmax(sigmoid(X @ theta.T), axis=1)
     accuracy = np.mean(predictions == y) * 100
-    print("🎯 Précision du modèle sur les données d'entraînement : "
+    print(f"\n🎯 Précision du modèle sur les données d'entraînement : "
           f"{accuracy:.2f}%")
 
 
+def get_user_choice():
+
+    methods = ["batch", "mini-batch", "sgd"]
+    print("Méthodes disponibles :")
+    for i, method in enumerate(methods):
+        print(f"{i+1}. {method}")
+
+    method_choice = input(
+        "\n➡️  Entrez le numéro de la méthode choisie (1-3) : "
+    )
+    method = methods[int(method_choice)-1]
+
+    # Paramètres prédéfinis
+    if method == "batch":
+        lr = 0.01
+        epochs = 6000
+        batch_size = None
+    elif method == "mini-batch":
+        lr = 0.01
+        epochs = 1500
+        batch_size = 32
+    elif method == "sgd":
+        lr = 0.05
+        epochs = 3000
+        batch_size = None
+
+    print(f"\n✅ Méthode : {method.upper()}")
+    print(f"✅ Learning rate : {lr}")
+    print(f"✅ Epochs : {epochs}")
+    if batch_size:
+        print(f"✅ Batch size : {batch_size}")
+
+    return method, lr, epochs, batch_size
+
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("📌 Usage : python logreg_train.py <dataset_train.csv> "
-              "[batch_size]")
-        sys.exit(1)
+    # Dataset par défaut
+    dataset_path = "data/dataset_train.csv"
 
-    file_path = sys.argv[1]
-    batch_size = int(sys.argv[2]) if len(sys.argv) > 2 else None
-
-    df, selected_features, mean_train, std_train = load_data(file_path)
+    # Chargement des données
+    df, selected_features, mean_train, std_train = load_data(dataset_path)
     df, label_dict = encode_labels(df)
 
     X = df[selected_features].values
     X = np.hstack([np.ones((X.shape[0], 1)), X])
     y = df["House Label"].values
-
     num_labels = len(label_dict)
 
+    # Choix de l'utilisateur
+    method, lr, epochs, batch_size = get_user_choice()
+
+    # Entraînement du modèle
     theta = train_one_vs_all(
-        X, y, num_labels, iterations=7000, batch_size=batch_size
+        X, y, num_labels,
+        method=method,
+        alpha=lr,
+        iterations=epochs,
+        batch_size=batch_size
     )
 
+    # Sauvegarde et évaluation
     save_model(theta, label_dict, mean_train, std_train)
     evaluate_model(X, y, theta)
 
-    print("🎯 Entraînement terminé !")
+    print("\n🎯 Entraînement terminé !")

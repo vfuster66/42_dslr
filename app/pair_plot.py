@@ -57,7 +57,7 @@ def find_best_separating_features(df, output_file="data/best_features.txt"):
         for feature in top_features:
             f.write(f"{feature}\n")
 
-    print(f"📂 Meilleures caractéristiques sauvegardées dans : {output_file}")
+    print(f"\n📂 Meilleures caractéristiques sauvegardées dans : {output_file}")
 
 
 def find_best_correlated_features(df):
@@ -92,7 +92,7 @@ def plot_pairplot(df, output_dir="data/pairplot", filename="pair_plot.png"):
     pairplot.savefig(output_path)
     plt.close()
 
-    print(f"📊 Pair plot sauvegardé : {output_path}")
+    print(f"\n📊 Pair plot sauvegardé : {output_path}")
 
 
 if __name__ == "__main__":
@@ -103,6 +103,6 @@ if __name__ == "__main__":
     file_path = sys.argv[1]
     df = load_data(file_path)
 
-    find_best_separating_features(df)  # Ajout de la sauvegarde
+    find_best_separating_features(df)
     find_best_correlated_features(df)
     plot_pairplot(df)

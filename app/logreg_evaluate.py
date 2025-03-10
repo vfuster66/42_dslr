@@ -12,7 +12,6 @@ def load_best_features(filepath="data/best_features.txt"):
     try:
         with open(filepath, "r") as f:
             features = [line.strip() for line in f.readlines()]
-        print(f"🔍 Caractéristiques sélectionnées : {features}")
         return features
     except Exception as e:
         print(f"❌ Erreur chargement des meilleures caractéristiques : {e}")
@@ -130,7 +129,8 @@ def plot_confusion_matrix_heatmap(matrix, label_names, output_file):
     plt.close()
 
     print(
-        f"✅ Heatmap de la matrice de confusion sauvegardée dans {output_file}"
+        f"\n✅ Heatmap de la matrice de confusion sauvegardée dans "
+        f"{output_file}"
         )
 
 
@@ -152,7 +152,6 @@ def main():
         mean_train = model_data["mean"]
         std_train = model_data["std"]
 
-        print(f"\n📜 Labels du modèle : {labels}")
     except Exception as e:
         print(f"❌ Erreur chargement modèle : {e}")
         sys.exit(1)
