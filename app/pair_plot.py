@@ -13,7 +13,8 @@ def load_data(filepath):
 
         if "Hogwarts House" not in df.columns:
             raise ValueError(
-                "Le dataset doit contenir une colonne 'Hogwarts House'.")
+                "Le dataset doit contenir une colonne 'Hogwarts House'."
+            )
 
         numeric_cols = [
             col for col in df.columns
@@ -79,15 +80,18 @@ def find_best_correlated_features(df):
               f"(Corrélation : {row['Correlation']:.3f})")
 
 
-def plot_pairplot(df, output_path="data/pair_plot.png"):
+def plot_pairplot(df, output_dir="data/pairplot", filename="pair_plot.png"):
     """Génère un pair plot des caractéristiques
     numériques et sauvegarde l'image."""
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, filename)
+
     plt.figure(figsize=(12, 10))
     pairplot = sns.pairplot(df, hue="Hogwarts House", palette="Set2")
 
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     pairplot.savefig(output_path)
     plt.close()
+
     print(f"📊 Pair plot sauvegardé : {output_path}")
 
 

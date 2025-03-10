@@ -96,6 +96,6 @@ if __name__ == "__main__":
         "Hogwarts House": predictions
     })
 
-    output_path = "houses.csv"
+    output_path = "data/houses.csv"
     results.to_csv(output_path, index=False)
     print(f"✅ Prédictions sauvegardées dans {output_path}")
