@@ -7,30 +7,24 @@ import os
 
 
 def load_data(filepath):
-    """Charge les données du fichier CSV et retourne un DataFrame filtré
-    sur les colonnes numériques."""
-    try:
-        df = pd.read_csv(filepath)
+    df = pd.read_csv(filepath)
 
-        if "Hogwarts House" not in df.columns:
-            raise ValueError(
-                "Le dataset doit contenir une colonne 'Hogwarts House'."
-                )
+    if "Hogwarts House" not in df.columns:
+        raise ValueError(
+            "Le dataset doit contenir une colonne 'Hogwarts House'."
+            )
 
-        numeric_cols = [
-            col for col in df.columns
-            if col not in [
-                "Index", "Hogwarts House", "First Name",
-                "Last Name", "Birthday", "Best Hand"
-            ]
+    numeric_cols = [
+        col for col in df.columns
+        if col not in [
+            "Index", "Hogwarts House", "First Name",
+            "Last Name", "Birthday", "Best Hand"
         ]
+    ]
 
-        df = df[["Hogwarts House"] + numeric_cols].dropna()
+    df = df[["Hogwarts House"] + numeric_cols].dropna()
 
-        return df
-    except Exception as e:
-        print(f"❌ Erreur lors du chargement des données : {e}")
-        sys.exit(1)
+    return df
 
 
 def find_most_correlated_features(df, top_n=5):

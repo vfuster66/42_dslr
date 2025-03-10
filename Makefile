@@ -82,6 +82,13 @@ test:
 	@echo "🧪 Exécution des tests unitaires..."
 	@docker run --rm -it -v $(PWD):/app -w /app $(IMAGE_NAME) python3 -m unittest discover -s tests -p "test_*.py"
 
+# Exécuter un fichier de test spécifique
+test-file:
+	@echo "🧪 Exécution des tests sur le fichier $(FILE)..."
+	@docker run --rm -it -v $(PWD):/app -w /app $(IMAGE_NAME) \
+	python3 -m unittest -v $(FILE)
+
+
 # ---------------------------------------------
 # CLEAN
 # ---------------------------------------------

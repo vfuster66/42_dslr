@@ -7,26 +7,24 @@ import numpy as np
 
 
 def load_data(filepath):
-    """Charge les données et filtre les colonnes numériques."""
-    try:
-        df = pd.read_csv(filepath)
+    df = pd.read_csv(filepath)
 
-        if "Hogwarts House" not in df.columns:
-            raise ValueError(
-                "Le dataset doit contenir une colonne 'Hogwarts House'."
+    if "Hogwarts House" not in df.columns:
+        raise ValueError(
+            "Le dataset doit contenir une colonne 'Hogwarts House'."
             )
 
-        numeric_cols = [
-            col for col in df.columns
-            if col not in ["Index", "Hogwarts House", "First Name",
-                           "Last Name", "Birthday", "Best Hand"]
+    numeric_cols = [
+        col for col in df.columns
+        if col not in [
+            "Index", "Hogwarts House", "First Name",
+            "Last Name", "Birthday", "Best Hand"
         ]
+    ]
 
-        df = df[["Hogwarts House"] + numeric_cols].dropna()
-        return df
-    except Exception as e:
-        print(f"❌ Erreur lors du chargement des données : {e}")
-        sys.exit(1)
+    df = df[["Hogwarts House"] + numeric_cols].dropna()
+
+    return df
 
 
 def find_best_separating_features(df, output_file="data/best_features.txt"):
