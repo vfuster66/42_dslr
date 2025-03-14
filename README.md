@@ -5,11 +5,14 @@ Ce projet a pour but de prédire dans **quelle maison de Poudlard** seront répa
 
 L'algorithme principal est une **régression logistique multi-classe** utilisant la méthode **One-vs-All**. Ce projet suit une méthodologie complète de **Data Science**, allant de la compréhension des données jusqu'à l'évaluation d'un modèle de classification.
 
+🪄 **Objectif :** prédire dans quelle maison seront répartis les nouveaux élèves parmi :  
+➡️ **Gryffondor**, **Poufsouffle**, **Serdaigle**, **Serpentard**.
+
 ---
 
 ## 🧭 Contexte
 
-Le **Chapeau Magique** de Poudlard est défectueux ! Le professeur McGonagall fait appel à vous, un(e) **data scientist moldu(e)**, pour créer un algorithme capable de trier les élèves dans leur maison respective : **Gryffondor**, **Poufsouffle**, **Serdaigle** ou **Serpentard**.
+Le **Chapeau Magique** de Poudlard est défectueux ! Le professeur McGonagall fait appel à vous, un(e) **data scientist moldu(e)**, pour créer un algorithme capable de trier les élèves dans leur maison respective : **Gryffondor**, **Poufsouffle**, **Serdaigle** ou **Serpentard** .
 
 Pour ce faire, vous utilisez les **données historiques** des élèves : leurs notes dans différentes matières, leurs comportements, etc.
 
@@ -18,9 +21,10 @@ Pour ce faire, vous utilisez les **données historiques** des élèves : leurs n
 ## 🎯 Objectifs pédagogiques
 
 Ce projet vise à :
-- Implémenter une **régression logistique multi-classe** sans bibliothèque de Machine Learning haut niveau.
-- Apprendre à **analyser**, **nettoyer**, **visualiser** et **modéliser** des données.
-- Comprendre le cycle complet d'un projet de **classification supervisée**.
+- **Comprendre et manipuler des données réelles**
+- **Implémenter une régression logistique multi-classe One-vs-All**
+- **Apprendre à entraîner un modèle sans librairie ML**
+- **Atteindre une précision d'au moins 98 % sur des données inconnues**
 
 ---
 
@@ -32,12 +36,23 @@ Chaque étape est essentielle dans le pipeline d'un projet de Machine Learning :
 
 ## 1. 📂 Analyse des données
 
-### Ce qu’on fait :
+### Script : `describe.py`
+
+🔍 **Ce que ça fait :**  
 - **Charger** le dataset d'entraînement (`dataset_train.csv`).
 - **Observer** la structure des données : colonnes, types de valeurs, valeurs manquantes.
 
+### Concepts expliqués :
+- **Count** : nombre de valeurs valides dans chaque colonne  
+- **Mean (moyenne)** : la valeur moyenne de la colonne  
+- **Standard Deviation (écart-type)** : mesure la dispersion des valeurs  
+- **Min/Max** : valeur minimale et maximale  
+- **Quartiles (25%, 50%, 75%)** : indiquent la distribution des données  
+- **Skewness** : asymétrie de la distribution (bonus)  
+- **Kurtosis** : aplatissement ou concentration de la distribution (bonus)
+
 ### Pourquoi c'est important :
-Avant de modéliser quoi que ce soit, il faut **comprendre ses données**. Cette étape permet d'anticiper les problèmes (valeurs manquantes, colonnes inutiles, etc.).
+Avant de modéliser quoi que ce soit, il faut **comprendre ses données**. Cette étape permet d'anticiper les problèmes (valeurs manquantes, colonnes inutiles, etc., données bien réparties et si certaines colonnes sont inutiles ou biaisées).
 
 ### Implémentation : `app/describe.py`
 - Calcul **manuel** de statistiques descriptives :
@@ -51,7 +66,7 @@ Avant de modéliser quoi que ce soit, il faut **comprendre ses données**. Cette
 - Identifier les **variables discriminantes**.
 - Détecter les **anomalies** (valeurs aberrantes, outliers).
 
-#### Exemple d'utilisation :
+#### Commande :
 ```bash
 make describe
 ```
@@ -66,34 +81,47 @@ make describe
 La **visualisation** aide à comprendre les **relations entre variables** et à **choisir les features** pertinentes pour le modèle.
 
 ### 2.1. Histogrammes - `app/histogram.py`
+🎨 **Ce que ça fait :**  
+- Affiche la distribution des scores par matière, maison par maison.
 - Affiche un **histogramme** des notes par matière.
 - Cherche les cours où la répartition est **homogène** entre les maisons.
 
-🔧 **Pourquoi ?**
-- Permet de détecter si certaines matières sont **plus ou moins discriminantes**.
+#### Concept :
+- **Histogramme** : montre comment les données sont réparties sur une échelle (valeurs fréquentes ou rares).
 
+🔧 **Pourquoi ?**
+➡️ Déterminer si une matière est **pertinente pour différencier les maisons**.
+
+#### Commande :
 ```bash
 make histogram
 ```
 
 ### 2.2. Scatter Plots - `app/scatter_plot.py`
+
+🎨 **Ce que ça fait :**
 - Affiche des **nuages de points** entre deux variables.
 - Cherche les deux features **les plus similaires** (corrélation).
 
-🔧 **Pourquoi ?**
-- Comprendre quelles features sont **corrélées**, et ainsi éviter la **redondance** dans les variables.
+#### Concept :
+- **Scatter Plot** : montre la relation entre deux variables → permet de voir si elles sont **corrélées**.
 
+🔧 **Pourquoi ?**
+➡️ Identifier les **variables similaires** pour éviter la redondance dans l'entraînement du modèle.
+
+#### Commande :
 ```bash
 make scatter
 ```
 
 ### 2.3. Pair Plot - `app/pair_plot.py`
-- Génère une **matrice de scatter plots** pour observer toutes les relations.
+- Affiche une matrice complète de Scatter Plots et d'histogrammes pour **toutes les paires de variables**.
 - Sélectionne les **features à utiliser pour l'entraînement**.
 
 🔧 **Pourquoi ?**
-- Aide à faire une **sélection de features** basée sur l'observation visuelle des distributions et relations.
+➡️ Pour **sélectionner les features** les plus pertinentes pour l’entraînement.
 
+#### Commande :
 ```bash
 make pairplot
 ```
@@ -102,29 +130,49 @@ make pairplot
 
 ## 3. 🤖 Régression Logistique (One-vs-All)
 
-### Ce qu’on fait :
-- Implémenter un **classifieur multi-classe** en One-vs-All avec **régression logistique**.
-- Chaque maison devient une **classe**, et le modèle apprend à **prédire la probabilité** qu'un élève appartienne à cette maison.
+### Qu’est-ce que la **régression logistique** ?  
+➡️ Un algorithme **de classification** : il prédit une probabilité d'appartenance à une classe.  
+➡️ Ici, il sert à prédire dans **quelle maison** ira l'élève.
+
+---
+
+### Qu’est-ce que le **One-vs-All** ?  
+➡️ On transforme un problème **multi-classe** en **plusieurs problèmes binaires** :  
+  - Le modèle apprend à dire "Maison Gryffondor : Oui ou Non ?", puis "Poufsouffle : Oui ou Non ?", etc.
+
+---
 
 ### 3.1. Entraînement - `app/logreg_train.py`
-- Implémentation de la **descente de gradient** classique.
+
+🛠️ **Ce que ça fait :**  
+- Entraîne **un modèle par maison** via **descente de gradient**  
+- Minimise l'erreur entre prédiction et réalité  
+- **Régularisation L2** : limite l’amplitude des poids pour éviter le **sur-apprentissage**
 - Calcul des **poids** pour chaque classe.
 - Sauvegarde des poids dans `data/logreg_model.npy`.
+
+### Concepts expliqués :
+- **Descente de gradient** : algorithme qui ajuste progressivement les poids pour **minimiser l'erreur**.  
+- **Régularisation L2** : pénalise les poids trop grands pour **améliorer la généralisation**.
 
 🔧 **Pourquoi ?**
 - La descente de gradient ajuste les **paramètres** pour minimiser l'erreur entre les **prédictions** et la **réalité**.
 
+#### Commande :
 ```bash
 make train
 ```
 
 ### 3.2. Prédiction - `app/logreg_predict.py`
-- Utilise les poids appris pour **prédire** la maison de chaque élève du `dataset_test.csv`.
-- Produit le fichier `houses.csv`.
+
+🛠️ **Ce que ça fait :**  
+- Charge le modèle entraîné  
+- Prédit la **maison** de chaque élève du `dataset_test.csv`
 
 🔧 **Pourquoi ?**
 - Générer des **prédictions** qu’on pourra **évaluer** ensuite.
 
+#### Commande :
 ```bash
 make predict
 ```
@@ -133,17 +181,16 @@ make predict
 
 ## 4. 🧮 Évaluation du modèle
 
-### Ce qu’on fait :
-- Évaluer la qualité de nos **prédictions** sur les données de test.
-
-### Implémentation - `app/logreg_evaluate.py`
-- Génération de **matrices de confusion**, **rapports de classification** et **courbes ROC** pour chaque maison.
-- Vérification que le modèle atteint **98% de précision** (critère du sujet).
+📈 **Ce que ça fait :**  
+- Calcule la **précision globale** (% de bonnes réponses)  
+- Crée une **matrice de confusion** : montre où se trouvent les erreurs  
+- Génère un **rapport de classification** : précision, rappel, F1-score
 
 🔧 **Pourquoi ?**
 - Évaluer objectivement les **performances** du modèle.
 - Voir si le modèle est **équilibré** entre les différentes classes.
 
+#### Commande :
 ```bash
 make evaluate
 ```
@@ -163,6 +210,7 @@ make evaluate
 - Analyse des **pair plots** pour repérer les features **les plus discriminantes**.
 - Stockage des meilleures features dans `data/best_features.txt`.
 
+#### Commande :
 ```bash
 make pairplot
 ```
@@ -178,6 +226,7 @@ make pairplot
 - **Skewness** : asymétrie de la distribution.
 - **Kurtosis** : aplatissement de la distribution.
 
+#### Commande :
 ```bash
 make describe
 ```
@@ -193,6 +242,7 @@ make describe
 - Courbes ROC pour chaque maison.
 - Super ROC : toutes les courbes affichées sur le même graphe.
 
+#### Commande :
 ```bash
 make roc
 make roc-all
@@ -209,6 +259,7 @@ make roc-all
 - Implémentation d'une **descente en mini-lots** dans `logreg_train.py`.
 - Gestion de la **taille des batchs** paramétrable (par défaut 32).
 
+#### Commande :
 ```bash
 make train-mbgd
 ```
@@ -225,6 +276,7 @@ make train-mbgd
 - `Dockerfile` : environnement Python 3.10 avec dépendances.
 - `Makefile` : automatisation des commandes Docker.
 
+#### Commande :
 Principales commandes :
 ```bash
 make build
@@ -242,15 +294,6 @@ make train
 - [Matplotlib](https://matplotlib.org/)
 - [Seaborn](https://seaborn.pydata.org/)
 - [Scikit-learn Metrics](https://scikit-learn.org/stable/modules/model_evaluation.html)
-
----
-
-## 🙌 Auteurs
-
-Projet réalisé dans le cadre de l'école **42**, module **dslr**.
-
-- Auteur : [Ton nom ici]
-- Année : 2024
 
 ---
 
